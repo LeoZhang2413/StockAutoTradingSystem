@@ -9,7 +9,9 @@ import java.util.logging.Logger;
 import com.aeolus.constant.BarSize;
 import com.aeolus.resources.data.OriginalHistoricalDataManager;
 import com.aeolus.resources.data.HistoricalDataRequest;
+import com.aeolus.resources.data.OriginalHistoricalData;
 import com.aeolus.resources.data.Quote;
+import com.aeolus.resources.manager.ResourceManager;
 import com.aeolus.util.MyUtil;
 import com.ib.client.Contract;
 import com.ib.client.TagValue;
@@ -39,7 +41,8 @@ public class ReqHistoricalDataTask extends Task{
 			requestData();
 			return;
 		}
-		Quote currentQuote = new Quote(MyUtil.toDate(date), open, close, high, low, volume);
+		Date currentDate = MyUtil.toDate(date);
+		Quote currentQuote = new Quote(currentDate, open, close, high, low, volume);
 		resultQuotes.put(currentQuote.getTime(),currentQuote);
 	}
 	
@@ -48,6 +51,7 @@ public class ReqHistoricalDataTask extends Task{
 	 */
 	public void requestData(){
 		long currentEndTime = resultQuotes.isEmpty()?endTime:resultQuotes.firstKey().getTime();
+		ResourceManager.setDownloadingProcessBarValue((int)((endTime-currentEndTime)*100/(endTime-startTime)));
 		long entireDuration = currentEndTime - startTime;
 		if(entireDuration<=0){
 			finishTask();
@@ -71,15 +75,34 @@ public class ReqHistoricalDataTask extends Task{
 	}
 	@Override
 	public void startTask() {
-		requestData();
+		if(!ResourceManager.isConnected()){
+			LOGGER.warning("dont ever try that again ... you are trying to download data without setting up a connection");
+			finishTaskWhenFailed();
+		}else if(ResourceManager.isDownloading()){
+			LOGGER.warning("please wait until the current downloading task is finished");
+			finishTaskWhenFailed();
+		}else{
+			ResourceManager.setDownloading(true);
+			requestData();
+		}
 	}
 	@Override
 	public void specialFinish() {
-		OriginalHistoricalDataManager.getOriginalHistoricalData(contract).appendData(barSize, resultQuotes);
+		OriginalHistoricalData originalHistoricalData = OriginalHistoricalDataManager.getOriginalHistoricalData(contract);
+		originalHistoricalData.appendData(barSize, resultQuotes);
+		Date start = MyUtil.getDayMidnight(originalHistoricalData.getQuotes(barSize).firstKey());
+		Date end = new Date(MyUtil.getDayMidnight(originalHistoricalData.getQuotes(barSize).lastKey()).getTime() - BarSize.Day1.getLengthInMills());
+		if(originalHistoricalData.getAdjustedClose().isEmpty() || originalHistoricalData.getAdjustedClose().lastKey().before(end) || originalHistoricalData.getAdjustedClose().firstKey().after(start)){
+			OriginalHistoricalDataManager.getAdjustedClose(contract);
+		}
 		OriginalHistoricalDataManager.getOriginalHistoricalData(contract).writeToDisk();
+		ResourceManager.setDownloading(false);
+		ResourceManager.setDownloadingProcessBarValue(100);
 	}
 	@Override
 	public void onError(){
 		finishTask();
+		ResourceManager.setDownloading(false);
+		ResourceManager.setDownloadingProcessBarValue(0);
 	}
 }

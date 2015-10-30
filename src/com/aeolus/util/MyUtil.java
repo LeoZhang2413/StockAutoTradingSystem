@@ -1,8 +1,10 @@
 package com.aeolus.util;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -15,6 +17,8 @@ public class MyUtil {
 	private static SimpleDateFormat endDateFormatter = new SimpleDateFormat("yyyyMMdd HH:mm:ss z",Locale.US);
 	private static SimpleDateFormat fullDateFormatter = new SimpleDateFormat("yyyyMMdd HH:mm:ss",Locale.US);
 	private static SimpleDateFormat halfDateFormatter = new SimpleDateFormat("yyyyMMdd",Locale.US);
+	private static DecimalFormat doubleFormat = new DecimalFormat("#.##");
+	private static DecimalFormat longFormat = new DecimalFormat("#");
 	static{
 		endDateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
@@ -83,5 +87,23 @@ public class MyUtil {
 			day = "0" + day;
 		}
 		return toDate(year+month+day);
+	}
+	// 20140502 13:00:22 --> 20140502 00:00:00
+	public static Date getDayMidnight(Date date){
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
+	}
+	
+	public static String formatDouble(double value){
+		return doubleFormat.format(value);
+	}
+	
+	public static String formatLong(long value){
+		return longFormat.format(value);
 	}
 }

@@ -4,25 +4,18 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Stroke;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Logger;
-
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -35,7 +28,6 @@ import org.jfree.data.xy.DefaultOHLCDataset;
 import org.jfree.data.xy.OHLCDataItem;
 
 import com.aeolus.constant.BarSize;
-import com.aeolus.resources.data.AdjustedHistoricalDataManager;
 import com.aeolus.resources.data.Quote;
 import com.aeolus.resources.manager.ResourceManager;
 import com.aeolus.util.ChartHelper;
@@ -127,6 +119,7 @@ public class StockChart {
 		if(marker!=null){
 			marker.setValue(date.getTime());
 			currentMarkerPosition = date;
+			updateInformationWindow();
 			return;
 		}
 		marker = new ValueMarker(date.getTime());  // position is the value on the axis
@@ -135,7 +128,7 @@ public class StockChart {
             1.0f, new float[] {10.0f, 6.0f}, 0.0f));
 		mainPlot.addDomainMarker(marker);
 		currentMarkerPosition = date;
-		//marker.setLabel("here"); // see JavaDoc for labels, colors, strokes
+		updateInformationWindow();
 	}
 	public void MoveDashMarker(boolean right){
 		Range range = dateAxis.getRange();
@@ -150,7 +143,7 @@ public class StockChart {
 			if(right){
 				if(currentMarkerPosition.before(quoteMap.lastKey())){
 					setDashMarker(quoteMap.higherKey(currentMarkerPosition));
-					if(!currentMarkerPosition.before(subMap.lastKey())){
+					if(currentMarkerPosition.after(subMap.lastKey())){
 						setDateRange(quoteMap.higherKey(subMap.firstKey()),currentMarkerPosition);
 						adjustValueRange();
 					}
@@ -158,7 +151,7 @@ public class StockChart {
 			}else{
 				if(currentMarkerPosition.after(quoteMap.firstKey())){
 					setDashMarker(quoteMap.lowerKey(currentMarkerPosition));
-					if(!currentMarkerPosition.after(subMap.firstKey())){
+					if(currentMarkerPosition.before(subMap.firstKey())){
 						setDateRange(currentMarkerPosition,quoteMap.lowerKey(subMap.lastKey()));
 						adjustValueRange();
 					}
@@ -193,9 +186,18 @@ public class StockChart {
 		//renderer.setCandleWidth(10);
 		//renderer.setAutoWidthGap(0.1);
 		renderer.setAutoWidthFactor(1000);
+		renderer.setMaxCandleWidthInMilliseconds(barSize.getLengthInMills()*0.8);
 		dateAxis.setTimeline(ChartHelper.getTimeline(barSize));
 		setDataset(getDataSet(contract,barSize,adjusted));
 		chartPanel.getChart().setTitle(MyUtil.ContractIdentifier(contract));
+		initialAxisRange();
+	}
+	private void initialAxisRange(){
+		TreeMap<Date,Quote> quoteMap = ResourceManager.getHistoricalData(currentContract, currentBarsize, adjusted);
+		if(!quoteMap.isEmpty()){
+			setDateRange(quoteMap.firstKey(),new Date(quoteMap.lastKey().getTime()+1));
+			adjustValueRange();
+		}
 	}
 	public void setDateRange(Date from, Date to){
 		dateAxis.setRange(from, to);
@@ -211,7 +213,7 @@ public class StockChart {
 			if(quoteMap.isEmpty()){
 				return;
 			}
-			for(Quote quote:quoteMap.subMap(new Date(start), new Date(end)).values()){
+			for(Quote quote:quoteMap.subMap(new Date(start), new Date(end+1)).values()){
 				if(highestPrice<quote.getHigh()) highestPrice = quote.getHigh();
 				if(lowestPrice>quote.getLow()) lowestPrice = quote.getLow();
 			}
@@ -228,9 +230,11 @@ public class StockChart {
 		long start = (long)range.getLowerBound();
 		if(currentContract!=null){
 			TreeMap<Date,Quote> quoteMap = ResourceManager.getHistoricalData(currentContract, currentBarsize, adjusted);
-			long timeLowerBound = quoteMap.firstKey().getTime() - BarSize.Day1.getLengthInMills()*5;
-			long timeUpperBound = quoteMap.lastKey().getTime() + BarSize.Day1.getLengthInMills()*5;
-			setDateRange(new Date(start<timeLowerBound?timeLowerBound:start),new Date(end>timeUpperBound?timeUpperBound:end));
+			if(!quoteMap.isEmpty()){
+				long timeLowerBound = quoteMap.firstKey().getTime() - BarSize.Day1.getLengthInMills()*5;
+				long timeUpperBound = quoteMap.lastKey().getTime() + BarSize.Day1.getLengthInMills()*5;
+				setDateRange(new Date(start<timeLowerBound?timeLowerBound:start),new Date(end>timeUpperBound?timeUpperBound:end));
+			}
 		}
 	}
 	public void onMouseWheelUpdate(){
@@ -268,5 +272,19 @@ public class StockChart {
 	}
 	public boolean isAdjusted(){
 		return adjusted;
+	}
+	private Quote getCurrentQuote(){
+		if(currentMarkerPosition!=null){
+			return ResourceManager.getHistoricalData(currentContract, currentBarsize, adjusted).get(currentMarkerPosition);
+		}
+		return null;
+	}
+	private void updateInformationWindow(){
+		Quote currentQuote= getCurrentQuote();
+		if(currentQuote!=null){
+			ResourceManager.setInfoWindowModel(currentQuote.getTime(),currentQuote.getOpen(), currentQuote.getClose(), currentQuote.getHigh(), currentQuote.getLow(), (long)currentQuote.getVolume());
+		}else{
+			LOGGER.warning("never ever try to get the quote when no price bar is selected");
+		}
 	}
 }

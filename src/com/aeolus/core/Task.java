@@ -33,6 +33,9 @@ abstract class Task {
 		specialFinish();
 		normalFinish();
 	}
+	public void finishTaskWhenFailed(){
+		normalFinish();
+	}
 	public void normalFinish(){
 		finished = true;
 		pool.removeTask(this);

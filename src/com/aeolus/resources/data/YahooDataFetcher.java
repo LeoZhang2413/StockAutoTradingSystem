@@ -18,7 +18,7 @@ import yahoofinance.histquotes.Interval;
 
 public class YahooDataFetcher {
 	private static Logger LOGGER = Logger.getLogger(YahooDataFetcher.class.getName());
-	public static TreeMap<Date,Double> getAdjustedCloseRatio(Contract contract){
+	public static TreeMap<Date,Double> getAdjustedClose(Contract contract){
 		Stock stock;
 		TreeMap<Date,Double> result = new TreeMap<Date,Double>();
 		if(contract.m_secType!="STK"){
@@ -27,9 +27,9 @@ public class YahooDataFetcher {
 		}
 		try {
 			stock = YahooFinance.get(contract.m_symbol);
-			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
-			cal.setTime(new Date(0));
-			for(HistoricalQuote quote:stock.getHistory(cal,Interval.DAILY)){
+			Calendar startCal = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
+			startCal.setTime(new Date(0));
+			for(HistoricalQuote quote:stock.getHistory(startCal,Interval.DAILY)){
 				result.put(quote.getDate().getTime(), quote.getAdjClose().doubleValue());
 			}
 		} catch (IOException e) {

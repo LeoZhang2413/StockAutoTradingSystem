@@ -43,4 +43,7 @@ public abstract class HistoricalData implements Serializable{
 		TreeMap<Date,Quote> quoteMap = getQuotes(size);
 		quoteMap.putAll(newQuotes);
 	}
+	public boolean isEmpty(){
+		return data.isEmpty();
+	}
 }

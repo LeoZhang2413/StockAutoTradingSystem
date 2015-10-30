@@ -3,6 +3,7 @@ import java.util.logging.Logger;
 
 import com.aeolus.constant.BarSize;
 import com.aeolus.constant.SystemParams;
+import com.aeolus.resources.manager.ResourceManager;
 import com.ib.client.Contract;
 import com.ib.client.EClientSocket;
 
@@ -16,6 +17,7 @@ public class SystemBase {
 		}else{
 			m_client.eConnect(SystemParams.IP, SystemParams.PORT, SystemParams.clientId);
 			if (m_client.isConnected()) {
+				ResourceManager.setConnected(true);
 				LOGGER.info("successfully connected");
 			}else{
 				LOGGER.info("connection failed, please try again");
@@ -24,6 +26,9 @@ public class SystemBase {
 	}
 	public void disconnect(){
 		m_client.eDisconnect();
+		if(!m_client.isConnected()){
+			ResourceManager.setConnected(false);
+		}
 	}
 	public void RequestHistoricalData(Contract contract, String startTime, String endTime, BarSize barSize){
 		ReqHistoricalDataTask reqHistoricalDataTask = new ReqHistoricalDataTask(this, contract, startTime, endTime, barSize);

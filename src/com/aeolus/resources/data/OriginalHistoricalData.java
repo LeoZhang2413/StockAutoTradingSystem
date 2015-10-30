@@ -12,6 +12,10 @@ import com.aeolus.constant.SystemParams;
 import com.ib.client.Contract;
 
 public class OriginalHistoricalData extends HistoricalData{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public OriginalHistoricalData(Contract contract) {
 		super(contract);
 	}
@@ -29,7 +33,6 @@ public class OriginalHistoricalData extends HistoricalData{
 			ObjectInputStream stream = new ObjectInputStream(in);
 			return (OriginalHistoricalData) stream.readObject();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
