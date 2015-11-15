@@ -57,4 +57,9 @@ public class OriginalHistoricalDataManager{
 			};
 		}.start();
 	}
+	public static void writeHistoricalDataToDisk(){
+		for(OriginalHistoricalData data:dataTable.values()){
+			data.writeToDisk();
+		}
+	}
 }

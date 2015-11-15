@@ -71,4 +71,7 @@ public class ResourceManager {
 	public static void setDownloadingProcessBarValue(int value){
 		mainWindow_.getControlPanel().setProcessBarValue(value);
 	}
+	public static void writeHistoricalDataToDisk(){
+		OriginalHistoricalDataManager.writeHistoricalDataToDisk();
+	}
 }

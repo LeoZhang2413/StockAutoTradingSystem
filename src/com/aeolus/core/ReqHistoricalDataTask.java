@@ -95,7 +95,6 @@ public class ReqHistoricalDataTask extends Task{
 		if(originalHistoricalData.getAdjustedClose().isEmpty() || originalHistoricalData.getAdjustedClose().lastKey().before(end) || originalHistoricalData.getAdjustedClose().firstKey().after(start)){
 			OriginalHistoricalDataManager.getAdjustedClose(contract);
 		}
-		OriginalHistoricalDataManager.getOriginalHistoricalData(contract).writeToDisk();
 		ResourceManager.setDownloading(false);
 		ResourceManager.setDownloadingProcessBarValue(100);
 	}

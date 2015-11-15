@@ -38,4 +38,7 @@ public class Quote implements Serializable{
 	public Date getTime(){
 		return time;
 	}
+	public String toString(){
+		return " Date: "+time.toString()+" close: "+close;
+	}
 }

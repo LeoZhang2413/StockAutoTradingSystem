@@ -32,6 +32,8 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class ControlPanel extends JPanel {
 	private static Logger LOGGER = Logger.getLogger(ControlPanel.class.getName());
@@ -173,6 +175,16 @@ public class ControlPanel extends JPanel {
 		progressBar = new JProgressBar();
 		progressBar.setBounds(12, 227, 214, 14);
 		add(progressBar);
+		
+		JButton btnSave = new JButton("save");
+		btnSave.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				ResourceManager.writeHistoricalDataToDisk();
+			}
+		});
+		btnSave.setBounds(12, 375, 100, 34);
+		add(btnSave);
 		initDataBindings();
 	}
 	private void fillTypeAndBarSize(){
