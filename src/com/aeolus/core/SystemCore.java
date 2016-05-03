@@ -1,5 +1,6 @@
 package com.aeolus.core;
 
+import java.util.Date;
 import java.util.logging.Logger;
 
 import com.ib.client.CommissionReport;
@@ -248,7 +249,9 @@ public class SystemCore implements EWrapper{
 	public void realtimeBar(int reqId, long time, double open, double high, double low, double close, long volume,
 			double wap, int count) {
 		// TODO Auto-generated method stub
-		
+		System.out.println("id="+reqId);
+		System.out.println(new Date().getTime());
+		System.out.println("time: "+time+" open: "+open+" close: "+close);
 	}
 
 	@Override
