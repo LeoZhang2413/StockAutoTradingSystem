@@ -39,11 +39,10 @@ public class Position {
 	}
 	public int substractLongPosition(int position, double price){
 		if(this.position<position){
-		}else{
 			position = this.position;
 		}
 		positionValue = averagePoisitionPrice()*(this.position-position);
-		this.position=-position;
+		this.position -= position;
 		return position;
 	}
 	public String toString(){

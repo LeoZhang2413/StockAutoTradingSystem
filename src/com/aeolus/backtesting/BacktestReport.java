@@ -1,8 +1,13 @@
 package com.aeolus.backtesting;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.TreeMap;
 
-import com.aeolus.account.CashAccount;
+import com.aeolus.account.Account;
+import com.aeolus.strategy.Strategy;
+import com.aeolus.strategy.TradingSignal;
 
 public class BacktestReport {
 	private double annualSharpeRatio;
@@ -10,15 +15,26 @@ public class BacktestReport {
 	private double maxDrawDownDuration;
 	private Date startDate;
 	private Date endDate;
-	private CashAccount finalAccount;
-	public BacktestReport(double initialAccountNetWorth,Date startDate, Date endDate) {
-		super();
-		this.finalAccount = new CashAccount(initialAccountNetWorth);
-		this.startDate = startDate;
-		this.endDate = endDate;
+	private Account account;
+	//private List<TradingSignal> tradingHistory = new ArrayList<TradingSignal>();
+	private TreeMap<Date,Double> networth = new TreeMap<Date,Double>();
+	public BacktestReport(Strategy strategy) {
+		this.account = strategy.getAccount();
+		this.startDate = strategy.getStartDate();
+		this.endDate = strategy.getEndDate();
 	}
-	public CashAccount getFinalAccount() {
-		return finalAccount;
+	/*public void recordSignal(TradingSignal signal){
+		tradingHistory.add(signal);
+	}
+	public List<TradingSignal> getTradingHistory(){
+		return tradingHistory;
+	}*/
+
+	public Account getAccount() {
+		return account;
+	}
+	public void setAccount(Account account) {
+		this.account = account;
 	}
 	public double getAnnualSharpeRatio() {
 		return annualSharpeRatio;
@@ -51,6 +67,12 @@ public class BacktestReport {
 		this.endDate = endDate;
 	}
 	public String toString(){
-		return "final account info:\n"+finalAccount.accountInfo();
+		return "final account info:\n"+account.accountInfo();
+	}
+	protected void recordNetworth(Date date, Double value){
+		networth.put(date, value);
+	}
+	public TreeMap<Date,Double> getNetworth(){
+		return networth;
 	}
 }

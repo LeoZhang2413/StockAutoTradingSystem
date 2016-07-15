@@ -1,22 +1,21 @@
 package com.aeolus.backtesting;
 
-import com.aeolus.account.Account;
-import com.aeolus.account.CashAccount;
 import com.aeolus.strategy.Strategy;
 import com.aeolus.strategy.TradingSignal;
-import com.aeolus.util.MyUtil;
-import com.ib.client.Contract;
 
 public class BacktestingTool {
 	public BacktestReport testingStrategy(Strategy strategy){
-		BacktestReport report = new BacktestReport(1000000,strategy.getStartDate(),strategy.getEndDate());
+		BacktestReport report = new BacktestReport(strategy);
 		while(strategy.hasNextCursor()){
 			strategy.nextCursor();
-			report.getFinalAccount().updatePositionPrice(strategy.getQuoteAtCurrentCursor());
+			strategy.getAccount().updatePositionPrice(strategy.getQuoteAtCurrentCursor());
+			report.recordNetworth(strategy.getDateAtCurrentCursor(), strategy.getAccount().currentNetworth());
 			for(TradingSignal signal:strategy.checkSignal()){
-				report.getFinalAccount().excuteSignal(signal);
+				strategy.getAccount().excuteSignal(signal);
+				//report.recordSignal(signal);
 			}
 		}
+		report.setAnnualSharpeRatio(StatisticsCalculator.sharpeRatioFromDailyData(report.getNetworth(), 0.01));
 		return report;
 	}
 }

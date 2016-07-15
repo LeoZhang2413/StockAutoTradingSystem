@@ -17,7 +17,6 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import javax.swing.JProgressBar;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class InforWindow extends JPanel {
@@ -43,7 +42,7 @@ public class InforWindow extends JPanel {
 		add(closeLabel);
 
 		closeJTextField = new JTextField();
-		closeJTextField.setBounds(66, 6, 130, 19);
+		closeJTextField.setBounds(66, 6, 166, 19);
 		add(closeJTextField);
 
 		JLabel highLabel = new JLabel("High:");
@@ -52,7 +51,7 @@ public class InforWindow extends JPanel {
 		add(highLabel);
 
 		highJTextField = new JTextField();
-		highJTextField.setBounds(66, 39, 130, 19);
+		highJTextField.setBounds(66, 39, 166, 19);
 		add(highJTextField);
 
 		JLabel lowLabel = new JLabel("Low:");
@@ -61,7 +60,7 @@ public class InforWindow extends JPanel {
 		add(lowLabel);
 
 		lowJTextField = new JTextField();
-		lowJTextField.setBounds(66, 72, 130, 19);
+		lowJTextField.setBounds(66, 72, 166, 19);
 		add(lowJTextField);
 
 		JLabel openLabel = new JLabel("Open:");
@@ -70,7 +69,7 @@ public class InforWindow extends JPanel {
 		add(openLabel);
 
 		openJTextField = new JTextField();
-		openJTextField.setBounds(66, 105, 130, 19);
+		openJTextField.setBounds(66, 105, 166, 19);
 		add(openJTextField);
 
 		JLabel volumeLabel = new JLabel("Volume:");
@@ -79,7 +78,7 @@ public class InforWindow extends JPanel {
 		add(volumeLabel);
 
 		volumeJTextField = new JTextField();
-		volumeJTextField.setBounds(66, 138, 130, 19);
+		volumeJTextField.setBounds(66, 138, 166, 19);
 		add(volumeJTextField);
 		
 		JLabel dateLabel = new JLabel("Date:");
@@ -88,16 +87,12 @@ public class InforWindow extends JPanel {
 		add(dateLabel);
 		
 		dateJTextField = new JTextField();
-		dateJTextField.setBounds(66, 171, 130, 19);
+		dateJTextField.setBounds(66, 171, 166, 19);
 		add(dateJTextField);
 
 		if (infoWindowModel != null) {
 			m_bindingGroup = initDataBindings();
 		}
-	}
-
-	public com.aeolus.swinggui.InfoWindowModel getInfoWindowModel() {
-		return infoWindowModel;
 	}
 
 	public void setQuote(String date, String open, String close, String high, String low, String volume){

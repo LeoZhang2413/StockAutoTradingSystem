@@ -74,7 +74,7 @@ public class AdjustedHistoricalDataManager {
 		}
 		return adjustedMap;
 	}
-	public static TreeMap<Date,QuoteGroup> getCompactData(TreeMap<Date,Quote> originalData){
+	private static TreeMap<Date,QuoteGroup> getCompactData(TreeMap<Date,Quote> originalData){
 		TreeMap<Date,QuoteGroup> groupTree = new TreeMap<Date,QuoteGroup>();
 		QuoteGroup currentGroup = new QuoteGroup();
 		for(Quote quote:originalData.values()){
@@ -84,7 +84,7 @@ public class AdjustedHistoricalDataManager {
 				currentGroup.addQuote(quote);
 			}
 		}
-		if(currentGroup.isEmpty()){
+		if(!currentGroup.isEmpty()){
 			groupTree.put(currentGroup.getDateInMidnight(), currentGroup);
 		}
 		return groupTree;

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import com.aeolus.account.Account;
 import com.aeolus.constant.BarSize;
 import com.aeolus.resources.data.Quote;
 import com.aeolus.resources.manager.ResourceManager;
@@ -25,11 +26,23 @@ public abstract class Strategy {
 	private int cursor = -1;
 	private Date startDate;
 	private Date endDate;
+	private Account account;
 	public List<Contract> getContracts() {
 		return contracts;
 	}
-	protected Strategy(){}
-	protected void feedData(List<Contract> contracts, BarSize barSize){
+	protected Strategy(Account account){
+		this.account = account;
+	}
+	public Account getAccount() {
+		return account;
+	}
+	protected void subscribeDataForRealtimeTrading(){
+		//TO-DO
+	}
+	public Date getDateAtCurrentCursor(){
+		return quoteList.get(0).get(cursor).getTime();
+	}
+	protected void feedDataForBacktesting(List<Contract> contracts, BarSize barSize){
 		this.contracts = contracts;
 		this.barSize = barSize;
 		Set<Date> availableDate = new HashSet<Date>();

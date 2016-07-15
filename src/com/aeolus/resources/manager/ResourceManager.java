@@ -5,6 +5,7 @@ import java.util.TreeMap;
 
 import com.aeolus.constant.BarSize;
 import com.aeolus.core.SystemBase;
+import com.aeolus.resources.chart.BackTestingStockChart;
 import com.aeolus.resources.chart.StockChart;
 import com.aeolus.resources.data.AdjustedHistoricalDataManager;
 import com.aeolus.resources.data.HistoricalData;
@@ -12,20 +13,26 @@ import com.aeolus.resources.data.OriginalHistoricalData;
 import com.aeolus.resources.data.OriginalHistoricalDataManager;
 import com.aeolus.resources.data.Quote;
 import com.aeolus.resources.data.YahooDataFetcher;
+import com.aeolus.swinggui.BacktestingWindow;
 import com.aeolus.swinggui.ControlPanel;
+import com.aeolus.swinggui.HistoricalDataWindow;
 import com.aeolus.swinggui.InfoWindowModel;
 import com.aeolus.swinggui.InforWindow;
-import com.aeolus.swinggui.MainWindow;
 import com.aeolus.util.ContractFactory;
 import com.aeolus.util.MyUtil;
 import com.ib.client.Contract;
 
 public class ResourceManager {
-	private static StockChart chart = new StockChart();
+	private static StockChart stockChart = new StockChart();
+	private static BackTestingStockChart backTestingChart = new BackTestingStockChart();
 	private static SystemBase core = new SystemBase();
-	private static MainWindow mainWindow_;
+	private static HistoricalDataWindow historicalDataWindow_;
+	private static BacktestingWindow backtestingWindow_;
 	private static boolean downloading = false;
 	private static boolean connected = false;
+	public static BackTestingStockChart getBackTestingChart() {
+		return backTestingChart;
+	}
 	public static boolean isConnected() {
 		return connected;
 	}
@@ -42,7 +49,7 @@ public class ResourceManager {
 		OriginalHistoricalDataManager.loadFromDisk();
 	}
 	public static StockChart getStockChart(){
-		return chart;
+		return stockChart;
 	}
 	public static void connectToServer(){
 		core.connect();
@@ -62,14 +69,20 @@ public class ResourceManager {
 		}
 		return quoteMap;
 	}
-	public static void registerMainWindow(MainWindow mainWindow){
-		mainWindow_ = mainWindow;
+	public static void registerMainWindow(HistoricalDataWindow historicalDataWindow){
+		historicalDataWindow_ = historicalDataWindow;
 	}
 	public static void setInfoWindowModel(Date date,double open, double close, double high, double low, long volume){
-		mainWindow_.getInfoWindow().setQuote(MyUtil.timeToString(date.getTime()),MyUtil.formatDouble(open),MyUtil.formatDouble(close),MyUtil.formatDouble(high),MyUtil.formatDouble(low),MyUtil.formatLong(volume));
+		historicalDataWindow_.getInfoWindow().setQuote(MyUtil.timeToString(date.getTime()),MyUtil.formatDouble(open),MyUtil.formatDouble(close),MyUtil.formatDouble(high),MyUtil.formatDouble(low),MyUtil.formatLong(volume));
 	}
 	public static void setDownloadingProcessBarValue(int value){
-		mainWindow_.getControlPanel().setProcessBarValue(value);
+		historicalDataWindow_.getControlPanel().setProcessBarValue(value);
+	}
+	public static void registerBacktestingWindow(BacktestingWindow backtestingWindow){
+		backtestingWindow_ = backtestingWindow;
+	}
+	public static BacktestingWindow getBacktestingWindow() {
+		return backtestingWindow_;
 	}
 	public static void writeHistoricalDataToDisk(){
 		OriginalHistoricalDataManager.writeHistoricalDataToDisk();

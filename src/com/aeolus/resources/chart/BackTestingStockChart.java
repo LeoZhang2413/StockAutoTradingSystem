@@ -1,8 +1,6 @@
 package com.aeolus.resources.chart;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
+
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -10,52 +8,43 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.logging.Logger;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.ValueMarker;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.CandlestickRenderer;
-import org.jfree.data.Range;
-import org.jfree.data.xy.DefaultOHLCDataset;
-import org.jfree.data.xy.OHLCDataItem;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
+import org.jfree.chart.plot.PlotOrientation;
 
-import com.aeolus.constant.BarSize;
-import com.aeolus.resources.data.Quote;
-import com.aeolus.resources.manager.ResourceManager;
-import com.aeolus.util.ChartHelper;
+import com.aeolus.backtesting.BacktestReport;
 import com.aeolus.util.MyUtil;
 import com.ib.client.Contract;
 
-public class StockChart {
-	private static Logger LOGGER = Logger.getLogger(StockChart.class.getName());
-	private ChartPanel chartPanel;
-	private CandleChart candleChart;
-	public ChartPanel getChartPanel(){
-		return chartPanel;
-	}
-	public CandleChart getCandleChart(){
-		return candleChart;
-	}
-	public void setTitle(Contract contract){
-		chartPanel.getChart().setTitle(MyUtil.ContractIdentifier(contract));
-	}
-	public StockChart(){
+public class BackTestingStockChart{
+	CandleChart candleChart;
+	TimeSeriesChart timeSeriesChart;
+	JFreeChart jFreeChart;
+	protected ChartPanel chartPanel;
+	public BackTestingStockChart(){
 		candleChart = new CandleChart(){
+
 			@Override
 			void onDashMarkerSet() {
 				// TODO Auto-generated method stub
-				this.updateInformationWindow();
+				updateBacktestingInfoWindow();
 			}};
-		JFreeChart chart = new JFreeChart("empty",null,candleChart.getXYPlot(),false);
-		chartPanel = new ChartPanel(chart);
+		timeSeriesChart = new TimeSeriesChart("backtest result");
+		timeSeriesChart.getXYPlot().setDomainAxis(candleChart.dateAxis);
+		final CombinedDomainXYPlot plot = new CombinedDomainXYPlot(candleChart.dateAxis);
+        plot.setGap(10.0);
+        // add the subplots...
+        plot.add(candleChart.getXYPlot(), 1);
+        plot.add(timeSeriesChart.getXYPlot(), 1);
+        plot.setOrientation(PlotOrientation.VERTICAL);
+        // return a new chart containing the overlaid plot...
+        //new JFreeChart("empty",null,mainPlot,false);
+        jFreeChart = new JFreeChart("empty",
+                              null, plot, true);
+        chartPanel = new ChartPanel(jFreeChart);
 		chartPanel.setMouseZoomable(true, false);
 		chartPanel.setPreferredSize(new Dimension(1000,500));
 		chartPanel.setMouseWheelEnabled(true);
@@ -115,5 +104,20 @@ public class StockChart {
 	public void onMouseWheelUpdate(){
 		candleChart.adjustDomainRange();
 		candleChart.adjustValueRange();
+	}
+	public void setTitle(Contract contract){
+		chartPanel.getChart().setTitle(MyUtil.ContractIdentifier(contract));
+	}
+	public ChartPanel getChartPanel() {
+		return chartPanel;
+	}
+	public CandleChart getCandleChart() {
+		return candleChart;
+	}
+	public TimeSeriesChart getTimeSeriesChart() {
+		return timeSeriesChart;
+	}
+	public void setBacktestReportChart(BacktestReport report){
+		timeSeriesChart.addNewSeries("networth", report.getNetworth());
 	}
 }

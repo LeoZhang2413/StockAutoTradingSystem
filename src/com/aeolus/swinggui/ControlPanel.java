@@ -112,8 +112,9 @@ public class ControlPanel extends JPanel {
 		btnLoad.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				ResourceManager.getStockChart().setAdjusted(false);
-				ResourceManager.getStockChart().changeContent(ContractFactory.stockContract(symbol_text.getText()), (BarSize)barSizeBox.getModel().getSelectedItem());
+				ResourceManager.getStockChart().getCandleChart().setAdjusted(false);
+				ResourceManager.getStockChart().getCandleChart().changeContent(ContractFactory.stockContract(symbol_text.getText()), (BarSize)barSizeBox.getModel().getSelectedItem());
+				ResourceManager.getStockChart().setTitle(ContractFactory.stockContract(symbol_text.getText()));
 			}
 		});
 		btnLoad.setBounds(12, 302, 96, 61);
@@ -162,8 +163,9 @@ public class ControlPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				BarSize currentSize = (BarSize)barSizeBox.getModel().getSelectedItem();
 				if(!currentSize.equals(BarSize.Week1)&&!currentSize.equals(BarSize.Month1)){
-					ResourceManager.getStockChart().setAdjusted(true);
-					ResourceManager.getStockChart().changeContent(ContractFactory.stockContract(symbol_text.getText()), (BarSize)barSizeBox.getModel().getSelectedItem());
+					ResourceManager.getStockChart().getCandleChart().setAdjusted(true);
+					ResourceManager.getStockChart().getCandleChart().changeContent(ContractFactory.stockContract(symbol_text.getText()), (BarSize)barSizeBox.getModel().getSelectedItem());
+					ResourceManager.getStockChart().setTitle(ContractFactory.stockContract(symbol_text.getText()));
 				}else{
 					LOGGER.warning("current bar size doesn't support DR data in this version");
 				}
@@ -192,7 +194,9 @@ public class ControlPanel extends JPanel {
 		typeModel.addElement("STK");
 		DefaultComboBoxModel<BarSize> barSizeModel = new DefaultComboBoxModel<BarSize>();
 		for(BarSize size:BarSize.values()){
-			barSizeModel.addElement(size);
+			if(size.equals(BarSize.Minute10)||size.equals(BarSize.Hour1)||size.equals(BarSize.Day1)){
+				barSizeModel.addElement(size);
+			}
 		}
 		typeBox.setModel(typeModel);
 		barSizeBox.setModel(barSizeModel);

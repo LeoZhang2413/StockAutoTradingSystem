@@ -1,5 +1,5 @@
 package com.aeolus.strategy;
 
 public enum SignalType {
-	BUY,SELL,HOLD
+	FAKE,BUY2OPEN,SELL2CLOSE,BUY2CLOSE,SELL2OPEN,HOLD
 }

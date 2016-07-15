@@ -15,7 +15,7 @@ public class ChartHost extends JPanel {
 	 */
 	public ChartHost() {
 		setLayout(new BorderLayout(0, 0));
-		JPanel panel = ResourceManager.getStockChart().getPanel();
+		JPanel panel = ResourceManager.getStockChart().getChartPanel();
 		add(panel, BorderLayout.CENTER);
 	}
 

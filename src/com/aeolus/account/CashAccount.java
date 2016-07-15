@@ -1,7 +1,6 @@
 package com.aeolus.account;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 import com.aeolus.strategy.TradingSignal;
 import com.aeolus.util.MyUtil;
@@ -44,9 +43,9 @@ public class CashAccount extends Account{
 		return sum;
 	}
 	@Override
-	public int openLongPosition(String contractID, double price, int amount) throws PositionOperationException{
+	public int openLongPosition(String contractID, double price, int amount){
 		if(amount<=0){
-			throw new PositionOperationException("amount negative");
+			return 0;
 		}
 		if((price+tradingFeePerShare)*amount>cash){
 			amount = (int) (cash/(price+tradingFeePerShare));
@@ -63,14 +62,13 @@ public class CashAccount extends Account{
 			tradingFeeSum += tradingFeePerShare*amount;
 			currentPosition.addLongPosition(amount, price);
 			return amount;
-		}else{
-			throw new PositionOperationException("existing position is not a long position, cannot open long position until you close all short positions");
 		}
+		return 0;
 	}
 	@Override
-	public int closeLongPosition(String contractID, double price, int amount) throws PositionOperationException{
+	public int closeLongPosition(String contractID, double price, int amount){
 		if(amount<=0){
-			throw new PositionOperationException("amount negative"); 
+			return 0;
 		}
 		Position currentPosition = positionMap.get(contractID);
 		if(currentPosition!=null&&currentPosition.getPositionType().equals(PositionType.LONG)){
@@ -78,10 +76,12 @@ public class CashAccount extends Account{
 			cash+=acutualAmount*price;
 			cash-=tradingFeePerShare*acutualAmount;
 			tradingFeeSum += tradingFeePerShare*acutualAmount;
+			if(currentPosition.getPosition() == 0){
+				positionMap.remove(contractID);
+			}
 			return acutualAmount;
-		}else{
-			throw new PositionOperationException("position not exist, or the existing position is a short positioin");
 		}
+		return 0;
 	}
 	@Override
 	public String accountInfo() {
@@ -91,12 +91,20 @@ public class CashAccount extends Account{
 	@Override
 	public void excuteSignal(TradingSignal signal) {
 		switch(signal.getType()){
-			case BUY: {
-				openLongPosition(MyUtil.ContractIdentifier(signal.getContract()),signal.getPrice(),1000000);
+			case BUY2OPEN: {
+				int amount = openLongPosition(MyUtil.ContractIdentifier(signal.getContract()),signal.getPrice(),signal.getVolumn());
+				if(amount!=0){
+					TradingSignal tradingRecord = new TradingSignal(signal.getType(), signal.getContract(), signal.getTime(), amount, signal.getPrice());
+					tradingHistory.add(tradingRecord);
+				}
 				break;
 			}
-			case SELL: {
-				closeLongPosition(MyUtil.ContractIdentifier(signal.getContract()),signal.getPrice(),1000000);
+			case SELL2CLOSE: {
+				int amount = closeLongPosition(MyUtil.ContractIdentifier(signal.getContract()),signal.getPrice(),signal.getVolumn());
+				if(amount!=0){
+					TradingSignal tradingRecord = new TradingSignal(signal.getType(), signal.getContract(), signal.getTime(), amount, signal.getPrice());
+					tradingHistory.add(tradingRecord);
+				}
 				break;
 			}
 			default:{

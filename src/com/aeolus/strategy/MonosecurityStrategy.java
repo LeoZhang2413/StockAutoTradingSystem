@@ -3,15 +3,17 @@ package com.aeolus.strategy;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.aeolus.account.Account;
 import com.aeolus.constant.BarSize;
 import com.aeolus.resources.data.Quote;
 import com.ib.client.Contract;
 
 public abstract class MonosecurityStrategy extends Strategy{
-	public MonosecurityStrategy(final Contract contract, BarSize barsize){
+	public MonosecurityStrategy(Account account, final Contract contract, BarSize barsize){
+		super(account);
 		List<Contract> contracts = new ArrayList<Contract>();
 		contracts.add(contract);
-		feedData(contracts,barsize);
+		feedDataForBacktesting(contracts,barsize);
 	}
 	@Override
 	public List<TradingSignal> checkSignal(List<Contract> contracts, List<List<Quote>> quoteList,

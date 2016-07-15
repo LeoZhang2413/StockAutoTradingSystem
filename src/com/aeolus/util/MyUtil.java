@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import org.eclipse.swt.widgets.DateTime;
+import org.joda.time.DateTime;
 
 import com.ib.client.Contract;
 public class MyUtil {
@@ -78,11 +78,11 @@ public class MyUtil {
 	}
 	public static Date dateTimeToString(DateTime dateTime){
 		String year = String.valueOf(dateTime.getYear());
-		String month = String.valueOf(dateTime.getMonth()+1);
+		String month = String.valueOf(dateTime.getMonthOfYear()+1);
 		if(month.length()==1){
 			month = "0" + month;
 		}
-		String day = String.valueOf(dateTime.getDay());
+		String day = String.valueOf(dateTime.getDayOfMonth());
 		if(day.length()==1){
 			day = "0" + day;
 		}

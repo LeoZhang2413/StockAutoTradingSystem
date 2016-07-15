@@ -8,15 +8,33 @@ public class TradingSignal {
 	private SignalType type;
 	private Contract contract;
 	private Date time;
-	private double ratio;
 	private double price;
-	public TradingSignal(SignalType type, Contract contract, Date time, double ratio, double price) {
+	private int volumn;
+	public TradingSignal(SignalType type, Contract contract, Date time, int volumn, double price) {
 		super();
 		this.type = type;
 		this.contract = contract;
 		this.time = time;
-		this.ratio = ratio;
+		this.volumn = volumn;
 		this.price = price;
+	}
+	public void setType(SignalType type) {
+		this.type = type;
+	}
+	public void setContract(Contract contract) {
+		this.contract = contract;
+	}
+	public void setTime(Date time) {
+		this.time = time;
+	}
+	public void setPrice(double price) {
+		this.price = price;
+	}
+	public void setVolumn(int volumn) {
+		this.volumn = volumn;
+	}
+	public int getVolumn() {
+		return volumn;
 	}
 	public double getPrice() {
 		return price;
@@ -30,7 +48,13 @@ public class TradingSignal {
 	public Date getTime() {
 		return time;
 	}
-	public double getRatio() {
-		return ratio;
+	public String getSignalInfo(){
+		if(!getType().equals(SignalType.FAKE)){
+			return "type: "+getType()+"\nprice: "+ getPrice()+"\nvolumn: "+getVolumn();
+		}
+		return "no record";
+	}
+	public String toString(){
+		return "type: "+type+" contract: "+contract.m_symbol + " time: "+time.toString()+" price: "+price+" volumn: "+volumn;
 	}
 }
